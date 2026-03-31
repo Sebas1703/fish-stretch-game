@@ -485,20 +485,20 @@
 <div id="screen-setup" class="screen">
   <div class="logo">🐟</div>
   <h1>Fish Stretch</h1>
-  <p class="subtitle">Escoge peces, estíralos y gana la noche</p>
+  <p class="subtitle">Pick fish, stretch them, and win the night</p>
 
   <div class="card">
-    <h3>Jugadores</h3>
+    <h3>Players</h3>
     <div id="player-list"></div>
-    <button class="btn btn-add" id="btn-add-player" onclick="addPlayerRow()">+ Agregar jugador</button>
+    <button class="btn btn-add" id="btn-add-player" onclick="addPlayerRow()">+ Add player</button>
   </div>
 
   <div class="card mt-12" style="text-align:center; color:var(--text-muted); font-size:0.88rem; padding:12px 16px;">
-    🐟 2 jugadores = 10 peces &nbsp;·&nbsp; 3 jugadores = 15 peces &nbsp;·&nbsp; 4 jugadores = 20 peces
+    🐟 2 players = 10 fish &nbsp;·&nbsp; 3 players = 15 fish &nbsp;·&nbsp; 4 players = 20 fish
   </div>
 
   <div class="error-msg" id="setup-error"></div>
-  <button class="btn btn-primary" onclick="startGame()">¡Jugar! 🐟</button>
+  <button class="btn btn-primary" onclick="startGame()">Play! 🐟</button>
 </div>
 
 <!-- ══════════════════════════════════════ -->
@@ -529,7 +529,7 @@
     <h3 id="reveal-player-name"></h3>
     <div class="reveal-fish-grid" id="reveal-fish-grid"></div>
     <div class="next-player-wrap" id="next-player-wrap" style="display:none;">
-      <button class="btn btn-primary" onclick="advanceRevealPlayer()">Siguiente jugador →</button>
+      <button class="btn btn-primary" onclick="advanceRevealPlayer()">Next player →</button>
     </div>
   </div>
 </div>
@@ -542,7 +542,7 @@
   <div class="winner-banner card" id="winner-banner"></div>
   <div class="card final-scoreboard" id="final-scoreboard"></div>
   <div class="mt-16">
-    <button class="btn btn-primary" onclick="playAgain()">🔄 Jugar de nuevo</button>
+    <button class="btn btn-primary" onclick="playAgain()">🔄 Play again</button>
   </div>
 </div>
 
@@ -607,10 +607,10 @@ function addPlayerRow(name = '', wish = '') {
   row.innerHTML = `
     <div class="player-dot" style="background:${color}"></div>
     <div class="player-inputs">
-      <input type="text" class="input player-name-input" placeholder="Nombre del jugador" maxlength="20" value="">
-      <input type="text" class="input player-wish-input" placeholder="¿Qué quieres hacer esta noche? (opcional)" maxlength="60" value="">
+      <input type="text" class="input player-name-input" placeholder="Player name" maxlength="20" value="">
+      <input type="text" class="input player-wish-input" placeholder="What do you want to do tonight? (optional)" maxlength="60" value="">
     </div>
-    <button class="btn-remove" onclick="removePlayerRow(this)" title="Quitar jugador">×</button>
+    <button class="btn-remove" onclick="removePlayerRow(this)" title="Remove player">×</button>
   `;
 
   // Set values via DOM to avoid XSS
@@ -647,11 +647,11 @@ function updateRemoveButtons() {
 function validateSetup() {
   const list = document.getElementById('player-list');
   const rows = list.querySelectorAll('.player-row');
-  if (rows.length < 2) return 'Se necesitan al menos 2 jugadores.';
+  if (rows.length < 2) return 'At least 2 players are needed.';
 
   for (const row of rows) {
     const name = row.querySelector('.player-name-input').value.trim();
-    if (!name) return 'Todos los jugadores deben tener nombre.';
+    if (!name) return 'All players must have a name.';
   }
 
   return null;
@@ -723,7 +723,7 @@ function renderMiniScores() {
     chip.innerHTML = `
       <span class="mini-score-dot" style="background:${p.color}"></span>
       <span class="mini-name">${sanitize(p.name)}</span>
-      <span class="mini-fish-count" id="mini-fish-count-${i}">0 peces</span>
+      <span class="mini-fish-count" id="mini-fish-count-${i}">0 fish</span>
     `;
     el.appendChild(chip);
   });
@@ -767,7 +767,7 @@ function handleFishClick(fishId) {
   // Update mini fish count
   const count = state.players[playerIdx].fish.length;
   const countEl = document.getElementById(`mini-fish-count-${playerIdx}`);
-  if (countEl) countEl.textContent = `${count} ${count === 1 ? 'pez' : 'peces'}`;
+  if (countEl) countEl.textContent = `${count} fish`;
 
   advanceTurn();
 }
@@ -793,8 +793,8 @@ function updateTurnBanner() {
 
   banner.style.borderColor = p.color;
   banner.style.background = `${p.color}18`;
-  nameEl.textContent = `${p.name}, elige un pez`;
-  subEl.textContent = `${state.fishPool.filter(f => f.ownerId === null).length} peces disponibles`;
+  nameEl.textContent = `${p.name}, pick a fish`;
+  subEl.textContent = `${state.fishPool.filter(f => f.ownerId === null).length} fish left`;
 }
 
 /* ════════════════════════════════════════
@@ -833,9 +833,9 @@ function highlightActivePlayer(idx) {
 function renderRevealForPlayer(playerIdx) {
   const player = state.players[playerIdx];
 
-  document.getElementById('reveal-title').textContent = '¡Hora de estirar!';
+  document.getElementById('reveal-title').textContent = 'Time to stretch!';
   const nameEl = document.getElementById('reveal-player-name');
-  nameEl.textContent = `${player.name} — estira tus peces`;
+  nameEl.textContent = `${player.name} — stretch your fish`;
   nameEl.style.color = player.color;
 
   const grid = document.getElementById('reveal-fish-grid');
@@ -860,8 +860,8 @@ function renderRevealForPlayer(playerIdx) {
           ${pipsHtml}
         </div>
       </div>
-      <div class="fish-score-label" id="fish-lbl-${fish.id}">? eslabones</div>
-      <button class="btn btn-stretch" id="stretch-btn-${fish.id}" onclick="stretchFish(${fish.id})">¡Estira! 🤸</button>
+      <div class="fish-score-label" id="fish-lbl-${fish.id}">? links</div>
+      <button class="btn btn-stretch" id="stretch-btn-${fish.id}" onclick="stretchFish(${fish.id})">Stretch! 🤸</button>
     `;
     grid.appendChild(card);
   });
@@ -912,7 +912,7 @@ function stretchFish(fishId) {
       if (segIdx >= fish.segments) {
         // All segments done
         const lbl = document.getElementById(`fish-lbl-${fishId}`);
-        lbl.textContent = `${fish.segments} eslabón${fish.segments !== 1 ? 'es' : ''}`;
+        lbl.textContent = `${fish.segments} link${fish.segments !== 1 ? 's' : ''}`;
         lbl.style.color = state.players[playerIdx].color;
 
         const card = document.getElementById(`reveal-card-${fishId}`);
@@ -953,7 +953,7 @@ function checkPlayerRevealComplete(playerIdx) {
     nextWrap.style.display = 'block';
     // If last player, change button text
     if (playerIdx === state.players.length - 1) {
-      nextWrap.querySelector('button').textContent = '🏆 Ver resultados';
+      nextWrap.querySelector('button').textContent = '🏆 See results';
     }
   }
 }
@@ -985,13 +985,13 @@ function showResults() {
 
   let bannerHTML = `<div class="trophy">${isMulti ? '🤝' : '🏆'}</div>`;
   if (isMulti) {
-    bannerHTML += `<h1>¡Empate!</h1>`;
-    bannerHTML += `<p style="opacity:0.85;margin-top:6px;">${winners.map(w => sanitize(w.name)).join(' y ')} con ${maxScore} eslabones</p>`;
+    bannerHTML += `<h1>It's a tie!</h1>`;
+    bannerHTML += `<p style="opacity:0.85;margin-top:6px;">${winners.map(w => sanitize(w.name)).join(' & ')} with ${maxScore} links</p>`;
   } else {
-    bannerHTML += `<h1>${sanitize(winners[0].name)} gana!</h1>`;
-    bannerHTML += `<p style="opacity:0.8;margin-top:4px;">${maxScore} eslabones en total</p>`;
+    bannerHTML += `<h1>${sanitize(winners[0].name)} wins!</h1>`;
+    bannerHTML += `<p style="opacity:0.8;margin-top:4px;">${maxScore} links total</p>`;
     if (winners[0].wishFor) {
-      bannerHTML += `<div class="winner-wish">Esta noche:<strong>${sanitize(winners[0].wishFor)}</strong></div>`;
+      bannerHTML += `<div class="winner-wish">Tonight:<strong>${sanitize(winners[0].wishFor)}</strong></div>`;
     }
   }
   banner.innerHTML = bannerHTML;
@@ -1008,7 +1008,7 @@ function showResults() {
       <span class="score-rank">${rankEmojis[i] || `${i+1}.`}</span>
       <span class="score-color-dot" style="background:${p.color}"></span>
       <span class="score-name">${sanitize(p.name)}</span>
-      <span class="score-fish-count">${p.fish.length} peces</span>
+      <span class="score-fish-count">${p.fish.length} fish</span>
       <span class="score-total" style="color:${p.color}">${p.score}</span>
     `;
     scoreEl.appendChild(row);
