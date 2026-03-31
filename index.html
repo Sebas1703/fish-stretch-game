@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Fish Stretch 🐟</title>
+  <style>
+    /* ── Variables ── */
+    :root {
+      --ocean-dark: #071420;
+      --ocean-mid:  #0d2540;
+      --ocean-light: #163a5f;
+      --coral:      #ff6b6b;
+      --teal:       #4ecdc4;
+      --gold:       #ffd93d;
+      --card-bg:    rgba(255,255,255,0.07);
+      --card-border: rgba(255,255,255,0.12);
+      --text:       #e8f4fd;
+      --text-muted: #7ba7c4;
+      --radius:     16px;
+      --radius-sm:  10px;
+    }
+
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(160deg, var(--ocean-dark) 0%, var(--ocean-mid) 50%, var(--ocean-light) 100%);
+      min-height: 100vh;
+      color: var(--text);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 16px 12px 40px;
+    }
+
+    /* ── Screens ── */
+    .screen {
+      width: 100%;
+      max-width: 500px;
+      display: none;
+      animation: screenFadeIn 0.35s ease forwards;
+    }
+    .screen.active { display: block; }
+
+    @keyframes screenFadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Typography ── */
+    h1 { font-size: 2rem; font-weight: 800; text-align: center; margin-bottom: 4px; letter-spacing: -0.5px; }
+    h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 12px; }
+    h3 { font-size: 1rem; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .subtitle { text-align: center; color: var(--text-muted); margin-bottom: 28px; font-size: 0.95rem; }
+
+    /* ── Card ── */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 20px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .card + .card { margin-top: 14px; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 13px 22px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s, opacity 0.12s, box-shadow 0.12s;
+      min-height: 48px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--coral), #ff4757);
+      color: white;
+      box-shadow: 0 4px 16px rgba(255,107,107,0.35);
+      width: 100%;
+    }
+    .btn-primary:hover:not(:disabled) { box-shadow: 0 6px 20px rgba(255,107,107,0.5); }
+
+    .btn-secondary {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 10px 18px;
+      font-size: 0.9rem;
+    }
+    .btn-secondary:hover:not(:disabled) { background: rgba(255,255,255,0.12); }
+
+    .btn-stretch {
+      padding: 9px 16px;
+      font-size: 0.88rem;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--teal), #2eb8b0);
+      color: #071420;
+      font-weight: 800;
+      box-shadow: 0 3px 10px rgba(78,205,196,0.3);
+      width: 100%;
+      margin-top: 8px;
+    }
+    .btn-stretch:hover:not(:disabled) { box-shadow: 0 5px 14px rgba(78,205,196,0.5); }
+
+    .btn-add {
+      background: rgba(78,205,196,0.12);
+      border: 1.5px dashed rgba(78,205,196,0.4);
+      color: var(--teal);
+      font-size: 0.9rem;
+      padding: 10px;
+      width: 100%;
+      border-radius: var(--radius-sm);
+      margin-top: 10px;
+    }
+    .btn-add:hover { background: rgba(78,205,196,0.2); }
+
+    /* ── SETUP SCREEN ── */
+    #screen-setup .logo {
+      text-align: center;
+      font-size: 3.5rem;
+      margin-bottom: 8px;
+      animation: fishBob 2.5s ease-in-out infinite;
+    }
+    @keyframes fishBob {
+      0%,100% { transform: translateY(0) rotate(-3deg); }
+      50%      { transform: translateY(-8px) rotate(3deg); }
+    }
+
+    .player-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .player-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .player-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      min-width: 0;
+    }
+    .input {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-size: 0.95rem;
+      width: 100%;
+      transition: border-color 0.2s;
+    }
+    .input::placeholder { color: var(--text-muted); }
+    .input:focus { outline: none; border-color: var(--teal); }
+    .input.error { border-color: var(--coral); }
+
+    .btn-remove {
+      background: rgba(255,107,107,0.15);
+      border: 1px solid rgba(255,107,107,0.3);
+      color: #ff6b6b;
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-remove:hover { background: rgba(255,107,107,0.25); }
+    .btn-remove:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .config-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .config-field label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .input-sm {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      padding: 9px 10px;
+      color: var(--text);
+      font-size: 0.95rem;
+      width: 100%;
+      text-align: center;
+    }
+    .input-sm:focus { outline: none; border-color: var(--teal); }
+
+    .error-msg {
+      color: var(--coral);
+      font-size: 0.85rem;
+      text-align: center;
+      min-height: 20px;
+      margin-bottom: 10px;
+    }
+
+    /* ── SELECTION SCREEN ── */
+    .turn-banner {
+      text-align: center;
+      padding: 16px;
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      border: 2px solid transparent;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .turn-banner .turn-sub {
+      font-size: 0.8rem;
+      font-weight: 400;
+      opacity: 0.75;
+      margin-top: 3px;
+    }
+
+    .fish-pool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+      gap: 10px;
+    }
+
+    .fish-card {
+      aspect-ratio: 3/4;
+      border-radius: var(--radius-sm);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.3s;
+      border: 2px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.06);
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .fish-card:not(.claimed):hover {
+      transform: translateY(-3px) rotate(-4deg);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    .fish-card:not(.claimed):active { transform: scale(0.94); }
+    .fish-card.claimed {
+      cursor: default;
+      opacity: 0.65;
+    }
+    .fish-card .fish-emoji {
+      font-size: 1.8rem;
+      line-height: 1;
+    }
+    .fish-card .fish-num {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 600;
+    }
+    .fish-card .claim-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: none;
+    }
+    .fish-card.claimed .claim-badge { display: block; }
+
+    .mini-scores {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .mini-score-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 5px 10px;
+      font-size: 0.8rem;
+    }
+    .mini-score-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .mini-fish-count { color: var(--text-muted); font-size: 0.75rem; }
+
+    /* ── REVEAL SCREEN ── */
+    #reveal-scoreboard {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .score-chip {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: 20px;
+      padding: 7px 13px;
+      font-size: 0.9rem;
+      transition: border-color 0.3s;
+    }
+    .score-chip .score-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .score-chip .score-val { font-weight: 800; font-size: 1rem; }
+    .score-chip.active-player { border-color: var(--gold); box-shadow: 0 0 10px rgba(255,217,61,0.2); }
+
+    .reveal-fish-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .fish-reveal-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      transition: border-color 0.3s;
+    }
+    .fish-reveal-card.done {
+      opacity: 0.7;
+    }
+
+    .fish-body-wrap {
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .fish-body {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transform-origin: left center;
+      transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+      min-width: max-content;
+    }
+    .fish-body.stretching {
+      transform: scaleX(1.0); /* driven by JS with actual value */
+    }
+
+    .fish-svg-wrap {
+      flex-shrink: 0;
+      width: 44px;
+      height: 28px;
+    }
+    .fish-svg-wrap svg { width: 100%; height: 100%; }
+
+    .segment-pip {
+      flex-shrink: 0;
+      width: 22px;
+      height: 16px;
+      opacity: 0;
+      transform: scale(0);
+    }
+    .segment-pip.visible {
+      animation: segmentPop 0.25s ease forwards;
+    }
+    @keyframes segmentPop {
+      0%   { opacity: 0; transform: scale(0) rotate(-20deg); }
+      60%  { opacity: 1; transform: scale(1.25) rotate(5deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+
+    .fish-score-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      font-weight: 600;
+    }
+
+    .next-player-wrap {
+      text-align: center;
+      margin-top: 18px;
+    }
+
+    /* ── RESULTS SCREEN ── */
+    #confetti-container {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 100;
+      overflow: hidden;
+    }
+    .confetti-piece {
+      position: absolute;
+      top: -20px;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      animation: confettiFall linear forwards;
+    }
+    @keyframes confettiFall {
+      0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+
+    .winner-banner {
+      text-align: center;
+      padding: 28px 20px;
+      border-radius: var(--radius);
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+      animation: winnerPulse 0.6s ease forwards;
+    }
+    @keyframes winnerPulse {
+      0%   { transform: scale(0.88); opacity: 0; }
+      60%  { transform: scale(1.03); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .winner-banner .trophy { font-size: 3rem; line-height: 1; margin-bottom: 8px; }
+    .winner-banner h1 { font-size: 1.8rem; margin-bottom: 6px; }
+    .winner-banner .winner-wish {
+      font-size: 0.95rem;
+      opacity: 0.85;
+      margin-top: 10px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+      padding: 8px 14px;
+    }
+    .winner-banner .winner-wish strong { display: block; font-size: 1.05rem; margin-top: 4px; }
+
+    .final-scoreboard .score-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .final-scoreboard .score-row:last-child { border-bottom: none; }
+    .score-rank { font-size: 1.1rem; width: 28px; text-align: center; }
+    .score-color-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .score-name { flex: 1; font-weight: 600; }
+    .score-fish-count { font-size: 0.8rem; color: var(--text-muted); }
+    .score-total { font-weight: 800; font-size: 1.15rem; }
+    .score-row.winner-row .score-name::after { content: ' 🏆'; }
+
+    /* ── Misc ── */
+    .divider {
+      height: 1px;
+      background: var(--card-border);
+      margin: 16px 0;
+    }
+    .text-center { text-align: center; }
+    .mt-16 { margin-top: 16px; }
+    .mt-12 { margin-top: 12px; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════ -->
+<!-- SCREEN 1: SETUP                       -->
+<!-- ══════════════════════════════════════ -->
+<div id="screen-setup" class="screen">
+  <div class="logo">🐟</div>
+  <h1>Fish Stretch</h1>
+  <p class="subtitle">Escoge peces, estíralos y gana la noche</p>
+
+  <div class="card">
+    <h3>Jugadores</h3>
+    <div id="player-list"></div>
+    <button class="btn btn-add" id="btn-add-player" onclick="addPlayerRow()">+ Agregar jugador</button>
+  </div>
+
+  <div class="card mt-12">
+    <h3>Configuración</h3>
+    <div class="config-row">
+      <div class="config-field">
+        <label>Total peces</label>
+        <input type="number" class="input-sm" id="cfg-fish-count" value="10" min="2" max="30">
+      </div>
+      <div class="config-field">
+        <label>Mín eslabones</label>
+        <input type="number" class="input-sm" id="cfg-seg-min" value="2" min="1" max="10">
+      </div>
+      <div class="config-field">
+        <label>Máx eslabones</label>
+        <input type="number" class="input-sm" id="cfg-seg-max" value="8" min="2" max="15">
+      </div>
+    </div>
+  </div>
+
+  <div class="error-msg" id="setup-error"></div>
+  <button class="btn btn-primary" onclick="startGame()">¡Jugar! 🐟</button>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- SCREEN 2: SELECTION                   -->
+<!-- ══════════════════════════════════════ -->
+<div id="screen-selection" class="screen">
+  <div id="turn-banner" class="turn-banner card">
+    <div id="turn-name"></div>
+    <div class="turn-sub" id="turn-sub"></div>
+  </div>
+
+  <div class="mini-scores" id="mini-scores"></div>
+
+  <div class="card">
+    <div class="fish-pool-grid" id="fish-pool-grid"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- SCREEN 3: REVEAL                      -->
+<!-- ══════════════════════════════════════ -->
+<div id="screen-reveal" class="screen">
+  <h2 id="reveal-title" style="text-align:center; margin-bottom:14px;"></h2>
+
+  <div id="reveal-scoreboard"></div>
+
+  <div id="reveal-player-area" class="card">
+    <h3 id="reveal-player-name"></h3>
+    <div class="reveal-fish-grid" id="reveal-fish-grid"></div>
+    <div class="next-player-wrap" id="next-player-wrap" style="display:none;">
+      <button class="btn btn-primary" onclick="advanceRevealPlayer()">Siguiente jugador →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- SCREEN 4: RESULTS                     -->
+<!-- ══════════════════════════════════════ -->
+<div id="screen-results" class="screen">
+  <div id="confetti-container"></div>
+  <div class="winner-banner card" id="winner-banner"></div>
+  <div class="card final-scoreboard" id="final-scoreboard"></div>
+  <div class="mt-16">
+    <button class="btn btn-primary" onclick="playAgain()">🔄 Jugar de nuevo</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<!-- JAVASCRIPT                            -->
+<!-- ══════════════════════════════════════ -->
+<script>
+/* ── Constants ── */
+const PLAYER_COLORS = [
+  '#ff6b6b','#4ecdc4','#ffd93d','#a29bfe',
+  '#fd79a8','#55efc4','#fdcb6e','#74b9ff'
+];
+
+/* ── State ── */
+let state = {
+  players: [],        // { name, color, wishFor, score, fish[] }
+  fishCount: 10,
+  segmentMin: 2,
+  segmentMax: 8,
+  phase: 'setup',
+  currentPlayerIndex: 0,
+  fishPool: [],       // { id, segments, ownerId, revealed }
+  revealPlayerIndex: 0,
+  animating: false,
+};
+
+/* ════════════════════════════════════════
+   UTILITIES
+════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+  });
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function sanitize(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+/* ════════════════════════════════════════
+   SETUP SCREEN
+════════════════════════════════════════ */
+function addPlayerRow(name = '', wish = '') {
+  const list = document.getElementById('player-list');
+  const count = list.children.length;
+  if (count >= PLAYER_COLORS.length) return;
+
+  const color = PLAYER_COLORS[count];
+  const row = document.createElement('div');
+  row.className = 'player-row';
+  row.dataset.index = count;
+
+  row.innerHTML = `
+    <div class="player-dot" style="background:${color}"></div>
+    <div class="player-inputs">
+      <input type="text" class="input player-name-input" placeholder="Nombre del jugador" maxlength="20" value="">
+      <input type="text" class="input player-wish-input" placeholder="¿Qué quieres hacer esta noche? (opcional)" maxlength="60" value="">
+    </div>
+    <button class="btn-remove" onclick="removePlayerRow(this)" title="Quitar jugador">×</button>
+  `;
+
+  // Set values via DOM to avoid XSS
+  row.querySelector('.player-name-input').value = name;
+  row.querySelector('.player-wish-input').value = wish;
+
+  list.appendChild(row);
+  updateRemoveButtons();
+
+  const addBtn = document.getElementById('btn-add-player');
+  if (list.children.length >= PLAYER_COLORS.length) {
+    addBtn.style.display = 'none';
+  }
+}
+
+function removePlayerRow(btn) {
+  const list = document.getElementById('player-list');
+  if (list.children.length <= 2) return;
+  btn.closest('.player-row').remove();
+  // Re-color dots
+  Array.from(list.children).forEach((row, i) => {
+    row.querySelector('.player-dot').style.background = PLAYER_COLORS[i];
+  });
+  document.getElementById('btn-add-player').style.display = '';
+  updateRemoveButtons();
+}
+
+function updateRemoveButtons() {
+  const list = document.getElementById('player-list');
+  const btns = list.querySelectorAll('.btn-remove');
+  btns.forEach(b => b.disabled = list.children.length <= 2);
+}
+
+function validateSetup() {
+  const list = document.getElementById('player-list');
+  const rows = list.querySelectorAll('.player-row');
+  if (rows.length < 2) return 'Se necesitan al menos 2 jugadores.';
+
+  for (const row of rows) {
+    const name = row.querySelector('.player-name-input').value.trim();
+    if (!name) return 'Todos los jugadores deben tener nombre.';
+  }
+
+  const fishCount = parseInt(document.getElementById('cfg-fish-count').value);
+  const segMin = parseInt(document.getElementById('cfg-seg-min').value);
+  const segMax = parseInt(document.getElementById('cfg-seg-max').value);
+
+  if (isNaN(fishCount) || fishCount < 2 || fishCount > 30)
+    return 'Total de peces debe ser entre 2 y 30.';
+  if (fishCount < rows.length)
+    return `Con ${rows.length} jugadores necesitas al menos ${rows.length} peces.`;
+  if (isNaN(segMin) || segMin < 1)
+    return 'Mínimo de eslabones debe ser al menos 1.';
+  if (isNaN(segMax) || segMax < 2)
+    return 'Máximo de eslabones debe ser al menos 2.';
+  if (segMin >= segMax)
+    return 'El mínimo de eslabones debe ser menor que el máximo.';
+
+  return null;
+}
+
+function startGame() {
+  const err = validateSetup();
+  const errEl = document.getElementById('setup-error');
+  if (err) {
+    errEl.textContent = err;
+    return;
+  }
+  errEl.textContent = '';
+
+  const list = document.getElementById('player-list');
+  const rows = list.querySelectorAll('.player-row');
+
+  state.players = Array.from(rows).map((row, i) => ({
+    name: row.querySelector('.player-name-input').value.trim(),
+    wishFor: row.querySelector('.player-wish-input').value.trim(),
+    color: PLAYER_COLORS[i],
+    score: 0,
+    fish: [],
+  }));
+
+  state.fishCount = parseInt(document.getElementById('cfg-fish-count').value);
+  state.segmentMin = parseInt(document.getElementById('cfg-seg-min').value);
+  state.segmentMax = parseInt(document.getElementById('cfg-seg-max').value);
+  state.currentPlayerIndex = 0;
+  state.phase = 'selection';
+
+  initFishPool();
+  renderSelectionScreen();
+  showScreen('screen-selection');
+}
+
+/* ════════════════════════════════════════
+   FISH POOL
+════════════════════════════════════════ */
+function initFishPool() {
+  state.fishPool = Array.from({ length: state.fishCount }, (_, i) => ({
+    id: i,
+    segments: randomInt(state.segmentMin, state.segmentMax),
+    ownerId: null,
+    revealed: false,
+  }));
+}
+
+/* ════════════════════════════════════════
+   SELECTION SCREEN
+════════════════════════════════════════ */
+function renderSelectionScreen() {
+  renderMiniScores();
+  renderFishPool();
+  updateTurnBanner();
+}
+
+function renderMiniScores() {
+  const el = document.getElementById('mini-scores');
+  el.innerHTML = '';
+  state.players.forEach((p, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'mini-score-chip';
+    chip.id = `mini-chip-${i}`;
+    chip.innerHTML = `
+      <span class="mini-score-dot" style="background:${p.color}"></span>
+      <span class="mini-name">${sanitize(p.name)}</span>
+      <span class="mini-fish-count" id="mini-fish-count-${i}">0 peces</span>
+    `;
+    el.appendChild(chip);
+  });
+}
+
+function renderFishPool() {
+  const grid = document.getElementById('fish-pool-grid');
+  grid.innerHTML = '';
+  state.fishPool.forEach(fish => {
+    const card = document.createElement('div');
+    card.className = 'fish-card';
+    card.id = `fish-card-${fish.id}`;
+    card.innerHTML = `
+      <span class="fish-emoji">🐟</span>
+      <span class="fish-num">#${fish.id + 1}</span>
+      <span class="claim-badge" id="badge-${fish.id}"></span>
+    `;
+    card.addEventListener('click', () => handleFishClick(fish.id));
+    grid.appendChild(card);
+  });
+}
+
+function handleFishClick(fishId) {
+  if (state.phase !== 'selection') return;
+  const fish = state.fishPool[fishId];
+  if (fish.ownerId !== null) return;
+
+  const playerIdx = state.currentPlayerIndex;
+  fish.ownerId = playerIdx;
+  state.players[playerIdx].fish.push(fish);
+
+  // Update card
+  const card = document.getElementById(`fish-card-${fishId}`);
+  const player = state.players[playerIdx];
+  card.classList.add('claimed');
+  card.style.borderColor = player.color;
+  card.style.background = `${player.color}22`;
+  const badge = document.getElementById(`badge-${fishId}`);
+  badge.style.background = player.color;
+
+  // Update mini fish count
+  const count = state.players[playerIdx].fish.length;
+  const countEl = document.getElementById(`mini-fish-count-${playerIdx}`);
+  if (countEl) countEl.textContent = `${count} ${count === 1 ? 'pez' : 'peces'}`;
+
+  advanceTurn();
+}
+
+function advanceTurn() {
+  const allClaimed = state.fishPool.every(f => f.ownerId !== null);
+  if (allClaimed) {
+    state.phase = 'reveal';
+    setTimeout(() => {
+      startRevealPhase();
+    }, 400);
+    return;
+  }
+  state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
+  updateTurnBanner();
+}
+
+function updateTurnBanner() {
+  const p = state.players[state.currentPlayerIndex];
+  const banner = document.getElementById('turn-banner');
+  const nameEl = document.getElementById('turn-name');
+  const subEl = document.getElementById('turn-sub');
+
+  banner.style.borderColor = p.color;
+  banner.style.background = `${p.color}18`;
+  nameEl.textContent = `${p.name}, elige un pez`;
+  subEl.textContent = `${state.fishPool.filter(f => f.ownerId === null).length} peces disponibles`;
+}
+
+/* ════════════════════════════════════════
+   REVEAL SCREEN
+════════════════════════════════════════ */
+function startRevealPhase() {
+  state.revealPlayerIndex = 0;
+  renderRevealScoreboard();
+  renderRevealForPlayer(0);
+  showScreen('screen-reveal');
+}
+
+function renderRevealScoreboard() {
+  const el = document.getElementById('reveal-scoreboard');
+  el.innerHTML = '';
+  state.players.forEach((p, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'score-chip';
+    chip.id = `score-chip-${i}`;
+    chip.innerHTML = `
+      <span class="score-dot" style="background:${p.color}"></span>
+      <span class="score-name-sm">${sanitize(p.name)}</span>
+      <span class="score-val" id="score-val-${i}">0</span>
+    `;
+    el.appendChild(chip);
+  });
+  highlightActivePlayer(0);
+}
+
+function highlightActivePlayer(idx) {
+  document.querySelectorAll('.score-chip').forEach((c, i) => {
+    c.classList.toggle('active-player', i === idx);
+  });
+}
+
+function renderRevealForPlayer(playerIdx) {
+  const player = state.players[playerIdx];
+
+  document.getElementById('reveal-title').textContent = '¡Hora de estirar!';
+  const nameEl = document.getElementById('reveal-player-name');
+  nameEl.textContent = `${player.name} — estira tus peces`;
+  nameEl.style.color = player.color;
+
+  const grid = document.getElementById('reveal-fish-grid');
+  grid.innerHTML = '';
+
+  player.fish.forEach(fish => {
+    const card = document.createElement('div');
+    card.className = 'fish-reveal-card';
+    card.id = `reveal-card-${fish.id}`;
+    card.style.borderColor = `${player.color}60`;
+
+    // Pre-build segment pips (all invisible)
+    let pipsHtml = '';
+    for (let i = 0; i < fish.segments; i++) {
+      pipsHtml += `<span class="segment-pip" id="pip-${fish.id}-${i}">${buildChainLinkSVG(player.color)}</span>`;
+    }
+
+    card.innerHTML = `
+      <div class="fish-body-wrap">
+        <div class="fish-body" id="fishbody-${fish.id}">
+          <span class="fish-svg-wrap">${buildFishSVG(player.color)}</span>
+          ${pipsHtml}
+        </div>
+      </div>
+      <div class="fish-score-label" id="fish-lbl-${fish.id}">? eslabones</div>
+      <button class="btn btn-stretch" id="stretch-btn-${fish.id}" onclick="stretchFish(${fish.id})">¡Estira! 🤸</button>
+    `;
+    grid.appendChild(card);
+  });
+
+  document.getElementById('next-player-wrap').style.display = 'none';
+  highlightActivePlayer(playerIdx);
+}
+
+function buildFishSVG(color) {
+  return `<svg viewBox="0 0 60 32" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="2,6 18,16 2,26" fill="${color}" opacity="0.85"/>
+    <ellipse cx="38" cy="16" rx="22" ry="13" fill="${color}"/>
+    <circle cx="53" cy="12" r="3.5" fill="white" opacity="0.9"/>
+    <circle cx="54" cy="12" r="1.8" fill="#1a1a2e"/>
+    <path d="M20,9 Q28,5 36,9" stroke="white" stroke-width="1.5" fill="none" opacity="0.4"/>
+  </svg>`;
+}
+
+function buildChainLinkSVG(color) {
+  return `<svg viewBox="0 0 22 16" xmlns="http://www.w3.org/2000/svg" width="22" height="16">
+    <rect x="1" y="2" width="20" height="12" rx="6" ry="6" fill="none" stroke="${color}" stroke-width="2.5"/>
+    <rect x="5" y="5" width="12" height="6" rx="3" ry="3" fill="${color}" opacity="0.35"/>
+  </svg>`;
+}
+
+function stretchFish(fishId) {
+  if (state.animating) return;
+
+  const btn = document.getElementById(`stretch-btn-${fishId}`);
+  if (!btn || btn.disabled) return;
+
+  const fish = state.fishPool[fishId];
+  state.animating = true;
+  btn.disabled = true;
+
+  const bodyEl = document.getElementById(`fishbody-${fishId}`);
+
+  // Animate stretch
+  const stretchScale = 1 + (fish.segments * 0.18);
+  bodyEl.style.transform = `scaleX(${stretchScale})`;
+
+  // After stretch animation (~450ms), reveal segments one by one
+  setTimeout(() => {
+    let segIdx = 0;
+    const playerIdx = state.revealPlayerIndex;
+
+    function revealNext() {
+      if (segIdx >= fish.segments) {
+        // All segments done
+        const lbl = document.getElementById(`fish-lbl-${fishId}`);
+        lbl.textContent = `${fish.segments} eslabón${fish.segments !== 1 ? 'es' : ''}`;
+        lbl.style.color = state.players[playerIdx].color;
+
+        const card = document.getElementById(`reveal-card-${fishId}`);
+        card.classList.add('done');
+
+        fish.revealed = true;
+        state.animating = false;
+        checkPlayerRevealComplete(playerIdx);
+        return;
+      }
+
+      const pip = document.getElementById(`pip-${fishId}-${segIdx}`);
+      if (pip) pip.classList.add('visible');
+
+      // Update score live
+      state.players[playerIdx].score++;
+      const scoreVal = document.getElementById(`score-val-${playerIdx}`);
+      if (scoreVal) {
+        scoreVal.textContent = state.players[playerIdx].score;
+        // Flash
+        scoreVal.style.color = state.players[playerIdx].color;
+        setTimeout(() => scoreVal.style.color = '', 300);
+      }
+
+      segIdx++;
+      setTimeout(revealNext, 160);
+    }
+
+    setTimeout(revealNext, 80);
+  }, 450);
+}
+
+function checkPlayerRevealComplete(playerIdx) {
+  const player = state.players[playerIdx];
+  const allRevealed = player.fish.every(f => f.revealed);
+  if (allRevealed) {
+    const nextWrap = document.getElementById('next-player-wrap');
+    nextWrap.style.display = 'block';
+    // If last player, change button text
+    if (playerIdx === state.players.length - 1) {
+      nextWrap.querySelector('button').textContent = '🏆 Ver resultados';
+    }
+  }
+}
+
+function advanceRevealPlayer() {
+  state.revealPlayerIndex++;
+  if (state.revealPlayerIndex >= state.players.length) {
+    showResults();
+    return;
+  }
+  renderRevealForPlayer(state.revealPlayerIndex);
+}
+
+/* ════════════════════════════════════════
+   RESULTS SCREEN
+════════════════════════════════════════ */
+function showResults() {
+  const sorted = [...state.players].sort((a, b) => b.score - a.score);
+  const maxScore = sorted[0].score;
+  const winners = sorted.filter(p => p.score === maxScore);
+
+  // Winner banner
+  const banner = document.getElementById('winner-banner');
+  const isMulti = winners.length > 1;
+
+  let winnerColor = winners.length === 1 ? winners[0].color : 'var(--gold)';
+  banner.style.background = `${winnerColor}22`;
+  banner.style.borderColor = `${winnerColor}60`;
+
+  let bannerHTML = `<div class="trophy">${isMulti ? '🤝' : '🏆'}</div>`;
+  if (isMulti) {
+    bannerHTML += `<h1>¡Empate!</h1>`;
+    bannerHTML += `<p style="opacity:0.85;margin-top:6px;">${winners.map(w => sanitize(w.name)).join(' y ')} con ${maxScore} eslabones</p>`;
+  } else {
+    bannerHTML += `<h1>${sanitize(winners[0].name)} gana!</h1>`;
+    bannerHTML += `<p style="opacity:0.8;margin-top:4px;">${maxScore} eslabones en total</p>`;
+    if (winners[0].wishFor) {
+      bannerHTML += `<div class="winner-wish">Esta noche:<strong>${sanitize(winners[0].wishFor)}</strong></div>`;
+    }
+  }
+  banner.innerHTML = bannerHTML;
+
+  // Final scoreboard
+  const scoreEl = document.getElementById('final-scoreboard');
+  scoreEl.innerHTML = '';
+  const rankEmojis = ['🥇','🥈','🥉'];
+  sorted.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'score-row';
+    if (p.score === maxScore) row.classList.add('winner-row');
+    row.innerHTML = `
+      <span class="score-rank">${rankEmojis[i] || `${i+1}.`}</span>
+      <span class="score-color-dot" style="background:${p.color}"></span>
+      <span class="score-name">${sanitize(p.name)}</span>
+      <span class="score-fish-count">${p.fish.length} peces</span>
+      <span class="score-total" style="color:${p.color}">${p.score}</span>
+    `;
+    scoreEl.appendChild(row);
+  });
+
+  showScreen('screen-results');
+  launchConfetti();
+}
+
+function launchConfetti() {
+  const container = document.getElementById('confetti-container');
+  container.innerHTML = '';
+  const colors = ['#ff6b6b','#ffd93d','#4ecdc4','#a29bfe','#fd79a8','#74b9ff','#ff9f43','#55efc4'];
+
+  for (let i = 0; i < 80; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = `${Math.random() * 100}%`;
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = `${randomInt(6, 12)}px`;
+    piece.style.height = `${randomInt(6, 12)}px`;
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    const dur = (1.5 + Math.random() * 2).toFixed(2);
+    const delay = (Math.random() * 1.2).toFixed(2);
+    piece.style.animationDuration = `${dur}s`;
+    piece.style.animationDelay = `${delay}s`;
+    container.appendChild(piece);
+  }
+
+  setTimeout(() => { container.innerHTML = ''; }, 5000);
+}
+
+/* ════════════════════════════════════════
+   PLAY AGAIN
+════════════════════════════════════════ */
+function playAgain() {
+  // Reset state
+  state = {
+    players: [],
+    fishCount: 10,
+    segmentMin: 2,
+    segmentMax: 8,
+    phase: 'setup',
+    currentPlayerIndex: 0,
+    fishPool: [],
+    revealPlayerIndex: 0,
+    animating: false,
+  };
+
+  // Reset DOM
+  document.getElementById('player-list').innerHTML = '';
+  document.getElementById('fish-pool-grid').innerHTML = '';
+  document.getElementById('reveal-fish-grid').innerHTML = '';
+  document.getElementById('confetti-container').innerHTML = '';
+  document.getElementById('setup-error').textContent = '';
+  document.getElementById('cfg-fish-count').value = 10;
+  document.getElementById('cfg-seg-min').value = 2;
+  document.getElementById('cfg-seg-max').value = 8;
+  document.getElementById('btn-add-player').style.display = '';
+
+  addPlayerRow();
+  addPlayerRow();
+  showScreen('screen-setup');
+}
+
+/* ════════════════════════════════════════
+   INIT
+════════════════════════════════════════ */
+addPlayerRow();
+addPlayerRow();
+showScreen('screen-setup');
+</script>
+</body>
+</html>
