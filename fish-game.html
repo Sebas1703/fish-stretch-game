@@ -493,22 +493,8 @@
     <button class="btn btn-add" id="btn-add-player" onclick="addPlayerRow()">+ Agregar jugador</button>
   </div>
 
-  <div class="card mt-12">
-    <h3>Configuración</h3>
-    <div class="config-row">
-      <div class="config-field">
-        <label>Total peces</label>
-        <input type="number" class="input-sm" id="cfg-fish-count" value="10" min="2" max="30">
-      </div>
-      <div class="config-field">
-        <label>Mín eslabones</label>
-        <input type="number" class="input-sm" id="cfg-seg-min" value="2" min="1" max="10">
-      </div>
-      <div class="config-field">
-        <label>Máx eslabones</label>
-        <input type="number" class="input-sm" id="cfg-seg-max" value="8" min="2" max="15">
-      </div>
-    </div>
+  <div class="card mt-12" style="text-align:center; color:var(--text-muted); font-size:0.88rem; padding:12px 16px;">
+    🐟 2 jugadores = 10 peces &nbsp;·&nbsp; 3 jugadores = 15 peces &nbsp;·&nbsp; 4 jugadores = 20 peces
   </div>
 
   <div class="error-msg" id="setup-error"></div>
@@ -668,21 +654,6 @@ function validateSetup() {
     if (!name) return 'Todos los jugadores deben tener nombre.';
   }
 
-  const fishCount = parseInt(document.getElementById('cfg-fish-count').value);
-  const segMin = parseInt(document.getElementById('cfg-seg-min').value);
-  const segMax = parseInt(document.getElementById('cfg-seg-max').value);
-
-  if (isNaN(fishCount) || fishCount < 2 || fishCount > 30)
-    return 'Total de peces debe ser entre 2 y 30.';
-  if (fishCount < rows.length)
-    return `Con ${rows.length} jugadores necesitas al menos ${rows.length} peces.`;
-  if (isNaN(segMin) || segMin < 1)
-    return 'Mínimo de eslabones debe ser al menos 1.';
-  if (isNaN(segMax) || segMax < 2)
-    return 'Máximo de eslabones debe ser al menos 2.';
-  if (segMin >= segMax)
-    return 'El mínimo de eslabones debe ser menor que el máximo.';
-
   return null;
 }
 
@@ -706,9 +677,7 @@ function startGame() {
     fish: [],
   }));
 
-  state.fishCount = parseInt(document.getElementById('cfg-fish-count').value);
-  state.segmentMin = parseInt(document.getElementById('cfg-seg-min').value);
-  state.segmentMax = parseInt(document.getElementById('cfg-seg-max').value);
+  state.fishCount = state.players.length * 5;
   state.currentPlayerIndex = 0;
   state.phase = 'selection';
 
@@ -721,9 +690,15 @@ function startGame() {
    FISH POOL
 ════════════════════════════════════════ */
 function initFishPool() {
-  state.fishPool = Array.from({ length: state.fishCount }, (_, i) => ({
+  // Segments 1..N, shuffled (Fisher-Yates)
+  const segments = Array.from({ length: state.fishCount }, (_, i) => i + 1);
+  for (let i = segments.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [segments[i], segments[j]] = [segments[j], segments[i]];
+  }
+  state.fishPool = segments.map((seg, i) => ({
     id: i,
-    segments: randomInt(state.segmentMin, state.segmentMax),
+    segments: seg,
     ownerId: null,
     revealed: false,
   }));
@@ -1089,9 +1064,6 @@ function playAgain() {
   document.getElementById('reveal-fish-grid').innerHTML = '';
   document.getElementById('confetti-container').innerHTML = '';
   document.getElementById('setup-error').textContent = '';
-  document.getElementById('cfg-fish-count').value = 10;
-  document.getElementById('cfg-seg-min').value = 2;
-  document.getElementById('cfg-seg-max').value = 8;
   document.getElementById('btn-add-player').style.display = '';
 
   addPlayerRow();
